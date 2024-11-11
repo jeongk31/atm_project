@@ -1,0 +1,2 @@
+# Hashes of file build rules.
+dd26d66190431c82be2d9bcc4e690f22 atm_system_autogen/timestamp
