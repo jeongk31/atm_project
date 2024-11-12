@@ -66,16 +66,27 @@ namespace ATMSystem
 
         for (const auto &[denomination, _] : VALID_DENOMINATIONS)
         {
-            std::string message = getLocalizedMessage("BILL_PROMPT");
-            size_t pos = message.find("{}");
-            if (pos != std::string::npos)
-            {
-                message.replace(pos, 2, std::to_string(denomination));
-            }
-
-            std::cout << message << " ";
             int count;
-            std::cin >> count;
+            do
+            {
+                std::string message = getLocalizedMessage("BILL_PROMPT");
+                size_t pos = message.find("{}");
+                if (pos != std::string::npos)
+                {
+                    message.replace(pos, 2, std::to_string(denomination));
+                }
+                std::cout << message << " ";
+
+                if (!(std::cin >> count) || count < 0 || count > MAX_CASH_INSERT)
+                {
+                    std::cout << "Please enter a valid number between 0 and " << MAX_CASH_INSERT << "\n";
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    continue;
+                }
+                break;
+            } while (true);
+
             if (count > 0)
             {
                 cashInput[denomination] = count;

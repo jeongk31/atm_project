@@ -1,14 +1,12 @@
-// src/Bank.cpp
 #include "Bank.hpp"
 
 namespace ATMSystem
 {
-
     Bank::Bank(const std::string &bankName) : name(bankName) {}
 
     bool Bank::createAccount(const std::string &userName, const std::string &accountNumber)
     {
-        auto account = std::make_shared<Account>(name, userName, accountNumber);
+        auto account = std::make_shared<Account>(shared_from_this(), userName, accountNumber);
         accounts[accountNumber] = account;
         userAccounts[userName].push_back(accountNumber);
         return true;
@@ -25,5 +23,4 @@ namespace ATMSystem
         auto it = userAccounts.find(userName);
         return (it != userAccounts.end()) ? it->second : std::vector<std::string>();
     }
-
-} // namespace ATMSystem
+}

@@ -28,14 +28,21 @@ namespace ATMSystem
 
     struct TransactionFees
     {
-        static const int DEPOSIT_PRIMARY = 1000;
-        static const int DEPOSIT_NON_PRIMARY = 2000;
-        static const int WITHDRAWAL_PRIMARY = 1000;
-        static const int WITHDRAWAL_NON_PRIMARY = 2000;
-        static const int TRANSFER_PRIMARY = 2000;
-        static const int TRANSFER_MIXED = 3000;
-        static const int TRANSFER_NON_PRIMARY = 4000;
-        static const int TRANSFER_CASH = 1000;
+        // Deposit fees
+        static const int DEPOSIT_PRIMARY = 1000;     // Primary bank deposit
+        static const int DEPOSIT_NON_PRIMARY = 2000; // Non-primary bank deposit
+
+        // Withdrawal fees
+        static const int WITHDRAWAL_PRIMARY = 1000;     // Primary bank withdrawal
+        static const int WITHDRAWAL_NON_PRIMARY = 2000; // Non-primary bank withdrawal
+
+        // Account transfer fees
+        static const int TRANSFER_PRIMARY = 2000;     // Between primary bank accounts
+        static const int TRANSFER_MIXED = 3000;       // Between primary and non-primary
+        static const int TRANSFER_NON_PRIMARY = 4000; // Between non-primary banks
+
+        // Cash transfer fee
+        static const int TRANSFER_CASH = 1000; // Cash transfer to any bank
     };
 
     const std::map<int, int> VALID_DENOMINATIONS = {

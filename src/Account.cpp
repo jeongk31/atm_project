@@ -4,8 +4,8 @@
 namespace ATMSystem
 {
 
-    Account::Account(const std::string &bank, const std::string &user, const std::string &accNum)
-        : bankName(bank), userName(user), accountNumber(accNum), balance(0)
+    Account::Account(std::shared_ptr<Bank> b, const std::string &user, const std::string &accNum)
+        : bank(b), userName(user), accountNumber(accNum), balance(0)
     {
     }
 

@@ -2,6 +2,7 @@
 #include "SystemInitializer.hpp"
 #include <iostream>
 #include <random>
+#include <set>
 
 namespace ATMSystem
 {
@@ -11,12 +12,21 @@ namespace ATMSystem
         static std::random_device rd;
         static std::mt19937 gen(rd());
         static std::uniform_int_distribution<> dis(0, 999999);
+        static std::set<std::string> usedSerials; // Keep track of used serial numbers
 
-        std::string serial = std::to_string(dis(gen));
-        while (serial.length() < 6)
+        std::string serial;
+        do
         {
-            serial = "0" + serial;
-        }
+            // Generate a new serial number
+            serial = std::to_string(dis(gen));
+            // Pad with leading zeros to ensure 6 digits
+            while (serial.length() < 6)
+            {
+                serial = "0" + serial;
+            }
+        } while (usedSerials.find(serial) != usedSerials.end()); // Keep trying until we get a unique one
+
+        usedSerials.insert(serial); // Record this serial as used
         return serial;
     }
 
@@ -141,8 +151,20 @@ namespace ATMSystem
             // Create ATM and initialize cash
             auto atm = std::make_shared<ATM>(serial, bankType, langSupport, banks[bankChoice]);
             atm->addCash(inventory);
-            atms.push_back(atm);
 
+            // If it's a multi-bank ATM, connect all banks
+            if (bankType == BankType::MULTI_BANK)
+            {
+                for (const auto &bank : banks)
+                {
+                    if (bank != banks[bankChoice]) // Don't add primary bank twice
+                    {
+                        atm->addConnectedBank(bank);
+                    }
+                }
+            }
+
+            atms.push_back(atm);
             std::cout << "ATM " << serial << " created successfully!\n";
         }
         std::cin.ignore();
@@ -150,10 +172,26 @@ namespace ATMSystem
 
     void SystemInitializer::initializeBankAccounts(const std::shared_ptr<Bank> &bank)
     {
-        std::cout << "Enter number of users for " << bank->getName() << ": ";
         int numUsers;
-        std::cin >> numUsers;
-        std::cin.ignore();
+        bool validInput = false;
+
+        // Fixed prompt to only ask once
+        do
+        {
+            std::cout << "Enter number of users for " << bank->getName() << ": ";
+            if (std::cin >> numUsers && numUsers > 0)
+            {
+                validInput = true;
+            }
+            else
+            {
+                std::cout << "Please enter a valid positive number\n";
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
+        } while (!validInput);
+
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
         for (int i = 0; i < numUsers; i++)
         {
@@ -161,20 +199,38 @@ namespace ATMSystem
             std::string userName;
             std::getline(std::cin, userName);
 
-            std::cout << "Number of accounts for " << userName << ": ";
             int numAccounts;
-            std::cin >> numAccounts;
-            std::cin.ignore();
+            validInput = false;
+
+            do
+            {
+                std::cout << "Number of accounts for " << userName << ": ";
+                if (std::cin >> numAccounts && numAccounts > 0)
+                {
+                    validInput = true;
+                }
+                else
+                {
+                    std::cout << "Please enter a valid positive number\n";
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
+            } while (!validInput);
+
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
             for (int j = 0; j < numAccounts; j++)
             {
-                // Generate 12-digit account number with proper padding
-                std::string accountNum = std::to_string(std::rand() % 1000000000000LL);
-                while (accountNum.length() < 12)
+                std::string accountNum;
+                do
                 {
-                    accountNum = "0" + accountNum;
-                }
-                accountNum = accountNum.substr(0, 12); // Ensure exactly 12 digits
+                    // Generate 12-digit account number
+                    accountNum = std::to_string(rand() % 1000000000000LL);
+                    while (accountNum.length() < 12)
+                    {
+                        accountNum = "0" + accountNum;
+                    }
+                } while (bank->getAccount(accountNum) != nullptr); // Ensure unique account number
 
                 bank->createAccount(userName, accountNum);
                 std::cout << "Created account " << accountNum << " for " << userName << "\n";

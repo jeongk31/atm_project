@@ -21,25 +21,8 @@ std::string formatCurrency(int amount)
     return "KRW " + str;
 }
 
-void displayCashBreakdown(int amount, const std::shared_ptr<ATM> &atm)
+void displayCashBreakdown(const std::map<int, int> &bills)
 {
-    int remaining = amount;
-    std::map<int, int> bills;
-
-    // Calculate bills needed (largest to smallest)
-    const std::vector<int> denominations = {50000, 10000, 5000, 1000};
-    for (int denom : denominations)
-    {
-        if (remaining >= denom)
-        {
-            int needed = remaining / denom;
-            // Use the ATM's getCashBreakdown method instead
-            auto breakdown = atm->getCashBreakdown(amount);
-            bills = breakdown;
-            break;
-        }
-    }
-
     std::cout << "Bills breakdown:\n";
     for (const auto &[denom, count] : bills)
     {
@@ -48,6 +31,30 @@ void displayCashBreakdown(int amount, const std::shared_ptr<ATM> &atm)
             std::cout << count << " × " << formatCurrency(denom) << "\n";
         }
     }
+}
+
+bool processDepositFee(UI &ui, const std::shared_ptr<ATM> &atm, bool isPrimaryBank)
+{
+    int fee = isPrimaryBank ? TransactionFees::DEPOSIT_PRIMARY : TransactionFees::DEPOSIT_NON_PRIMARY;
+    std::cout << "\nDeposit fee required: " << formatCurrency(fee) << "\n";
+    std::cout << "Please insert cash for the fee:\n";
+
+    auto feeInput = ui.getCashInput();
+    int totalFeeInput = 0;
+    for (const auto &[denom, count] : feeInput)
+    {
+        totalFeeInput += denom * count;
+    }
+
+    if (totalFeeInput < fee)
+    {
+        std::cout << "Insufficient fee amount. Transaction cancelled.\n";
+        return false;
+    }
+
+    // Add fee to ATM cash inventory
+    atm->addCash(feeInput);
+    return true;
 }
 
 int main()
@@ -60,8 +67,8 @@ int main()
 
         // Get available ATMs
         const auto &atms = initializer.getATMs();
+        const auto &banks = initializer.getBanks();
 
-        // Display available ATMs
         std::cout << "\nAvailable ATMs:\n";
         for (size_t i = 0; i < atms.size(); i++)
         {
@@ -76,328 +83,355 @@ int main()
         do
         {
             std::cout << "Select ATM (1-" << atms.size() << "): ";
-            std::cin >> atmChoice;
-            if (std::cin.fail())
+            if (!(std::cin >> atmChoice) || atmChoice < 1 || atmChoice > static_cast<int>(atms.size()))
             {
+                std::cout << "Invalid choice. Please try again.\n";
                 std::cin.clear();
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cout << "Invalid input. Please enter a number.\n";
                 continue;
             }
-            if (atmChoice < 1 || atmChoice > static_cast<int>(atms.size()))
-            {
-                std::cout << "Invalid choice. Please select a number between 1 and " << atms.size() << ".\n";
-            }
-        } while (atmChoice < 1 || atmChoice > static_cast<int>(atms.size()));
+            break;
+        } while (true);
+        std::cin.ignore();
         atmChoice--;
 
         auto selectedATM = atms[atmChoice];
         UI ui(selectedATM->getLanguageSupport() == LanguageSupport::BILINGUAL);
 
-        // Language selection for bilingual ATMs
         if (selectedATM->getLanguageSupport() == LanguageSupport::BILINGUAL)
         {
             ui.displayMessage("SELECT_LANGUAGE");
             std::string langChoice;
-            bool validChoice = false;
             do
             {
                 langChoice = ui.getInput();
-                if (langChoice == "1" || langChoice == "2")
-                {
-                    validChoice = true;
-                }
-                else
+                if (langChoice != "1" && langChoice != "2")
                 {
                     std::cout << "Please enter 1 for English or 2 for Korean.\n";
                 }
-            } while (!validChoice);
-
+            } while (langChoice != "1" && langChoice != "2");
             ui.setLanguage(langChoice == "2");
         }
 
         ui.displayMessage("WELCOME");
 
-        // Card input with error handling
+        // Card input and validation
         std::string cardNumber;
+        std::shared_ptr<Bank> cardBank;
+        std::shared_ptr<Account> userAccount;
         bool validCard = false;
+
         do
         {
             ui.showDisplayPanel("INSERT_CARD");
             cardNumber = ui.getInput();
             if (cardNumber.length() != 12)
-            { // Changed from 16 to 12
-                std::cout << "Invalid card number length. Please enter a 12-digit account number.\n";
-            }
-            else
             {
-                // We're using account numbers as card numbers in this implementation
-                // Verify if the card is valid for this ATM based on the bank
-                auto bank = selectedATM->getPrimaryBank();
-                auto account = bank->getAccount(cardNumber);
+                std::cout << "Invalid card number length. Please enter a 12-digit number.\n";
+                continue;
+            }
 
-                if (selectedATM->getBankType() == BankType::SINGLE_BANK)
+            // Find the bank and account for this card
+            for (const auto &bank : banks)
+            {
+                auto account = bank->getAccount(cardNumber);
+                if (account)
                 {
-                    // For single bank ATM, card must be from primary bank
-                    if (account)
-                    {
-                        validCard = true;
-                    }
-                    else
-                    {
-                        std::cout << "Card not valid for this ATM (Single Bank ATM only accepts cards from "
-                                  << bank->getName() << ").\n";
-                    }
+                    cardBank = bank;
+                    userAccount = account;
+                    break;
+                }
+            }
+
+            if (!userAccount)
+            {
+                std::cout << "Invalid card: Account not found.\n";
+                continue;
+            }
+
+            // Validate card based on ATM type
+            if (selectedATM->getBankType() == BankType::SINGLE_BANK)
+            {
+                if (cardBank == selectedATM->getPrimaryBank())
+                {
+                    validCard = true;
                 }
                 else
                 {
-                    // For multi-bank ATM, card can be from any bank
-                    validCard = true;
-                    for (const auto &bank : initializer.getBanks())
-                    {
-                        if (bank->getAccount(cardNumber))
-                        {
-                            validCard = true;
-                            break;
-                        }
-                    }
-                    if (!validCard)
-                    {
-                        std::cout << "Invalid card number. Account not found in any bank.\n";
-                    }
+                    std::cout << "This ATM only accepts cards from " << selectedATM->getPrimaryBank()->getName() << ".\n";
                 }
+            }
+            else
+            {
+                validCard = true;
             }
         } while (!validCard);
 
-        // PIN input with error handling
-        std::string pin;
+        // PIN validation
+        int pinAttempts = 0;
         bool validPin = false;
-        int attempts = 0;
-        const int MAX_ATTEMPTS = 3;
-
         do
         {
-            std::cout << "\n----------------------------------------\n";
-            std::cout << "Enter your PIN:";
-            std::cout << "\n----------------------------------------\n";
-            pin = ui.getInput();
+            ui.showDisplayPanel("ENTER_PIN");
+            std::string pin = ui.getInput();
 
             if (pin.length() != 4)
             {
                 std::cout << "Invalid PIN length. Please enter a 4-digit PIN.\n";
-                attempts++;
+                pinAttempts++;
             }
             else
             {
-                // Here you would verify the PIN with the bank
-                validPin = true;
+                validPin = true; // Simplified PIN validation
             }
 
-            if (attempts >= MAX_ATTEMPTS)
+            if (pinAttempts >= 3)
             {
-                std::cout << "Maximum PIN attempts exceeded. Session terminated.\n";
+                std::cout << "Maximum PIN attempts exceeded. Card retained.\n";
                 return 1;
             }
-        } while (!validPin && attempts < MAX_ATTEMPTS);
+        } while (!validPin && pinAttempts < 3);
 
-        // Main ATM operation loop
-        int currentBalance = 0; // This should come from the account
-        std::vector<std::string> transactionLog;
+        // Main transaction loop
         bool running = true;
+        int withdrawalCount = 0;
+        std::vector<std::string> transactionLog;
 
         while (running)
         {
+            std::cout << "\n";
+            for (int i = 0; i < 50; i++)
+                std::cout << "#";
+            std::cout << "\n\n";
+
             ui.displayMenu();
             std::string choice = ui.getInput();
+
+            if (choice.empty() || (choice[0] != '1' && choice[0] != '2' &&
+                                   choice[0] != '3' && choice[0] != '4'))
+            {
+                std::cout << "Invalid choice. Please select a valid option.\n";
+                continue;
+            }
 
             switch (choice[0])
             {
             case '1':
             { // Deposit
-                auto cashInput = ui.getCashInput();
-                int depositAmount = 0;
-                std::cout << "\nDeposited:\n";
+                std::cout << "\nSelect deposit type:\n1. Cash\n2. Check\n";
+                std::string depositType = ui.getInput();
 
-                for (const auto &[denomination, count] : cashInput)
+                if (depositType != "1" && depositType != "2")
                 {
-                    int amount = denomination * count;
-                    depositAmount += amount;
-                    if (count > 0)
-                    {
-                        std::cout << count << " × " << formatCurrency(denomination) << "\n";
-                    }
+                    std::cout << "Invalid deposit type. Please try again.\n";
+                    continue;
                 }
 
-                // Add deposit fee
-                const int depositFee = 1000; // Primary bank fee
-                std::cout << "\nDeposit fee: " << formatCurrency(depositFee) << "\n";
+                if (depositType == "1")
+                { // Cash deposit
+                    std::cout << "Enter cash to deposit:\n";
+                    auto cashInput = ui.getCashInput();
+                    int depositAmount = 0;
+                    for (const auto &[denom, count] : cashInput)
+                    {
+                        depositAmount += denom * count;
+                    }
 
-                currentBalance += depositAmount - depositFee;
-                transactionLog.push_back("Deposit: " + formatCurrency(depositAmount) +
-                                         " (Fee: " + formatCurrency(depositFee) + ")");
-                std::cout << "\nDeposit successful!\nNew balance: " << formatCurrency(currentBalance) << "\n";
+                    if (depositAmount <= 0)
+                    {
+                        std::cout << "Invalid deposit amount.\n";
+                        continue;
+                    }
+
+                    int depositedAmount;
+                    int fee;
+                    if (selectedATM->deposit(cardNumber, depositAmount, true, depositedAmount, fee))
+                    {
+                        std::cout << "\nDeposit successful!\n";
+                        std::cout << "Amount deposited: " << formatCurrency(depositedAmount) << "\n";
+                        std::cout << "Fee: " << formatCurrency(fee) << "\n";
+                        std::cout << "New balance: " << formatCurrency(userAccount->getBalance()) << "\n";
+
+                        transactionLog.push_back("Cash Deposit: " + formatCurrency(depositAmount) +
+                                                 " (Fee: " + formatCurrency(fee) + ")");
+                    }
+                }
+                else
+                { // Check deposit
+                    int checkAmount;
+                    std::cout << "Enter check amount (minimum " << formatCurrency(MIN_CHECK_AMOUNT) << "): ";
+                    if (!(std::cin >> checkAmount))
+                    {
+                        std::cout << "Invalid input.\n";
+                        std::cin.clear();
+                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                        continue;
+                    }
+                    std::cin.ignore();
+
+                    if (checkAmount < MIN_CHECK_AMOUNT)
+                    {
+                        std::cout << "Invalid check amount. Minimum is " << formatCurrency(MIN_CHECK_AMOUNT) << "\n";
+                        continue;
+                    }
+
+                    int depositedAmount;
+                    int fee;
+                    if (selectedATM->deposit(cardNumber, checkAmount, false, depositedAmount, fee))
+                    {
+                        std::cout << "\nCheck deposit successful!\n";
+                        std::cout << "Amount deposited: " << formatCurrency(depositedAmount) << "\n";
+                        std::cout << "Fee: " << formatCurrency(fee) << "\n";
+                        std::cout << "New balance: " << formatCurrency(userAccount->getBalance()) << "\n";
+
+                        transactionLog.push_back("Check Deposit: " + formatCurrency(checkAmount) +
+                                                 " (Fee: " + formatCurrency(fee) + ")");
+                    }
+                }
                 break;
             }
+
             case '2':
             { // Withdraw
+                if (withdrawalCount >= MAX_WITHDRAWALS_PER_SESSION)
+                {
+                    std::cout << "Maximum withdrawals per session (" << MAX_WITHDRAWALS_PER_SESSION << ") reached.\n";
+                    continue;
+                }
+
                 int amount;
-                bool validAmount = false;
-                do
+                std::cout << "Enter amount to withdraw (max " << formatCurrency(MAX_WITHDRAWAL_PER_TRANSACTION) << "): ";
+                if (!(std::cin >> amount))
                 {
-                    std::cout << "Enter amount to withdraw: ";
-                    std::string amountStr = ui.getInput();
-                    try
-                    {
-                        amount = std::stoi(amountStr);
-                        if (amount <= 0)
-                        {
-                            std::cout << "Please enter a positive amount.\n";
-                        }
-                        else if (amount > MAX_WITHDRAWAL_PER_TRANSACTION)
-                        {
-                            std::cout << "Amount exceeds maximum withdrawal limit of " << formatCurrency(MAX_WITHDRAWAL_PER_TRANSACTION) << "\n";
-                        }
-                        else
-                        {
-                            validAmount = true;
-                        }
-                    }
-                    catch (const std::exception &)
-                    {
-                        std::cout << "Invalid amount. Please enter a number.\n";
-                    }
-                } while (!validAmount);
-
-                const int withdrawalFee = 1000; // Primary bank fee
-
-                if (amount + withdrawalFee > currentBalance)
-                {
-                    std::cout << "Insufficient funds! (Amount + " << formatCurrency(withdrawalFee) << " fee)\n";
+                    std::cout << "Invalid input.\n";
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    continue;
                 }
-                else if (!selectedATM->hasSufficientCash(amount))
+                std::cin.ignore();
+
+                if (amount <= 0)
                 {
-                    std::cout << "ATM does not have sufficient cash for this withdrawal.\n";
+                    std::cout << "Please enter a positive amount.\n";
+                    continue;
                 }
-                else
+
+                if (amount > MAX_WITHDRAWAL_PER_TRANSACTION)
                 {
-                    currentBalance -= (amount + withdrawalFee);
-                    transactionLog.push_back("Withdrawal: " + formatCurrency(amount) +
-                                             " (Fee: " + formatCurrency(withdrawalFee) + ")");
+                    std::cout << "Amount exceeds maximum withdrawal limit.\n";
+                    continue;
+                }
+
+                int withdrawnAmount;
+                int fee;
+                std::map<int, int> bills;
+                if (selectedATM->withdraw(cardNumber, amount, withdrawnAmount, fee, bills))
+                {
+                    withdrawalCount++;
                     std::cout << "\nWithdrawal successful!\n";
-                    displayCashBreakdown(amount, selectedATM); // Pass the ATM object
-                    std::cout << "Fee: " << formatCurrency(withdrawalFee) << "\n";
-                    std::cout << "New balance: " << formatCurrency(currentBalance) << "\n";
+                    displayCashBreakdown(bills);
+                    std::cout << "Fee: " << formatCurrency(fee) << "\n";
+                    std::cout << "New balance: " << formatCurrency(userAccount->getBalance()) << "\n";
+
+                    transactionLog.push_back("Withdrawal: " + formatCurrency(withdrawnAmount) +
+                                             " (Fee: " + formatCurrency(fee) + ")");
                 }
                 break;
             }
+
             case '3':
             { // Transfer
-                std::string destAccount;
-                bool validDestAccount = false;
-                do
-                {
-                    std::cout << "Enter destination account (12 digits): ";
-                    destAccount = ui.getInput();
-                    if (destAccount.length() != 12)
-                    {
-                        std::cout << "Invalid account number. Please enter a 12-digit number.\n";
-                    }
-                    else
-                    {
-                        validDestAccount = true;
-                    }
-                } while (!validDestAccount);
+                std::cout << "\nSelect transfer type:\n1. Cash Transfer\n2. Account Transfer\n";
+                std::string transferType = ui.getInput();
 
-                int amount;
-                bool validAmount = false;
-                do
+                if (transferType != "1" && transferType != "2")
                 {
-                    std::cout << "Enter amount to transfer: ";
-                    std::string amountStr = ui.getInput();
-                    try
-                    {
-                        amount = std::stoi(amountStr);
-                        if (amount <= 0)
-                        {
-                            std::cout << "Please enter a positive amount.\n";
-                        }
-                        else
-                        {
-                            validAmount = true;
-                        }
-                    }
-                    catch (const std::exception &)
-                    {
-                        std::cout << "Invalid amount. Please enter a number.\n";
-                    }
-                } while (!validAmount);
+                    std::cout << "Invalid transfer type. Please try again.\n";
+                    continue;
+                }
 
-                const int transferFee = 2000; // Primary bank transfer fee
+                std::cout << "Enter destination account number: ";
+                std::string destAccountNum = ui.getInput();
 
-                if (amount + transferFee > currentBalance)
-                {
-                    std::cout << "Insufficient funds! (Amount + " << formatCurrency(transferFee) << " fee)\n";
+                if (transferType == "1")
+                { // Cash transfer
+                    std::cout << "Enter cash to transfer:\n";
+                    auto cashInput = ui.getCashInput();
+                    int transferAmount = 0;
+                    for (const auto &[denom, count] : cashInput)
+                    {
+                        transferAmount += denom * count;
+                    }
+
+                    int transferredAmount;
+                    int fee;
+                    if (selectedATM->transfer(cardNumber, destAccountNum, transferAmount, true, transferredAmount, fee))
+                    {
+                        std::cout << "\nCash transfer successful!\n";
+                        std::cout << "Amount transferred: " << formatCurrency(transferredAmount) << "\n";
+                        std::cout << "Fee: " << formatCurrency(fee) << "\n";
+
+                        transactionLog.push_back("Cash Transfer: " + formatCurrency(transferredAmount) +
+                                                 " to " + destAccountNum +
+                                                 " (Fee: " + formatCurrency(fee) + ")");
+                    }
                 }
                 else
-                {
-                    currentBalance -= (amount + transferFee);
-                    transactionLog.push_back("Transfer to " + destAccount + ": " +
-                                             formatCurrency(amount) +
-                                             " (Fee: " + formatCurrency(transferFee) + ")");
-                    std::cout << "\nTransfer successful!\n";
-                    std::cout << "Fee: " << formatCurrency(transferFee) << "\n";
-                    std::cout << "New balance: " << formatCurrency(currentBalance) << "\n";
+                { // Account transfer
+                    int amount;
+                    std::cout << "Enter amount to transfer: ";
+                    if (!(std::cin >> amount))
+                    {
+                        std::cout << "Invalid input.\n";
+                        std::cin.clear();
+                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                        continue;
+                    }
+                    std::cin.ignore();
+
+                    int transferredAmount;
+                    int fee;
+                    if (selectedATM->transfer(cardNumber, destAccountNum, amount, false, transferredAmount, fee))
+                    {
+                        std::cout << "\nAccount transfer successful!\n";
+                        std::cout << "Amount transferred: " << formatCurrency(transferredAmount) << "\n";
+                        std::cout << "Fee: " << formatCurrency(fee) << "\n";
+                        std::cout << "New balance: " << formatCurrency(userAccount->getBalance()) << "\n";
+
+                        transactionLog.push_back("Account Transfer: " + formatCurrency(transferredAmount) +
+                                                 " to " + destAccountNum +
+                                                 " (Fee: " + formatCurrency(fee) + ")");
+                    }
                 }
                 break;
             }
+
             case '4': // Exit
                 running = false;
                 break;
+
             default:
                 std::cout << "Invalid choice. Please select a valid option.\n";
             }
         }
 
         // Show transaction summary
-        std::vector<std::string> summary;
-        summary.push_back("Card: " + cardNumber.substr(0, 4) + " **** **** " +
-                          cardNumber.substr(12));
-        summary.push_back("Total Transactions: " + std::to_string(transactionLog.size()));
-
-        // Add individual transactions
-        for (const auto &transaction : transactionLog)
+        if (!transactionLog.empty())
         {
-            summary.push_back(transaction);
-        }
-
-        summary.push_back("Final Balance: " + formatCurrency(currentBalance));
-
-        ui.showTransactionSummary(summary);
-
-        // Ask for receipt
-        std::string receiptChoice;
-        do
-        {
-            std::cout << "Would you like a receipt? (Y/N): ";
-            receiptChoice = ui.getInput();
-            if (receiptChoice != "Y" && receiptChoice != "y" &&
-                receiptChoice != "N" && receiptChoice != "n")
+            std::cout << "\n=== Transaction Summary ===\n";
+            std::cout << "Card: " << cardNumber << "\n";
+            std::cout << "Bank: " << cardBank->getName() << "\n";
+            for (const auto &transaction : transactionLog)
             {
-                std::cout << "Invalid choice. Please enter Y or N.\n";
+                std::cout << transaction << "\n";
             }
-        } while (receiptChoice != "Y" && receiptChoice != "y" &&
-                 receiptChoice != "N" && receiptChoice != "n");
-
-        if (receiptChoice == "Y" || receiptChoice == "y")
-        {
-            ui.printReceipt(summary);
+            std::cout << "Final Balance: " << formatCurrency(userAccount->getBalance()) << "\n";
         }
 
+        std::cout << "\nThank you for using our ATM service!\n";
         return 0;
     }
     catch (const std::exception &e)
     {
-        std::cerr << "Error: " << e.what() << std::endl;
-        return 1;
     }
 }

@@ -9,12 +9,12 @@
 
 namespace ATMSystem
 {
-    class Bank
+    class Bank : public std::enable_shared_from_this<Bank>
     {
     private:
         std::string name;
-        std::map<std::string, std::shared_ptr<Account>> accounts;     // accountNumber -> Account
-        std::map<std::string, std::vector<std::string>> userAccounts; // userName -> accountNumbers
+        std::map<std::string, std::shared_ptr<Account>> accounts;
+        std::map<std::string, std::vector<std::string>> userAccounts;
 
     public:
         explicit Bank(const std::string &bankName);
@@ -29,4 +29,4 @@ namespace ATMSystem
     };
 }
 
-#endif
+#endif // BANK_HPP
