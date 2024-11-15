@@ -201,6 +201,30 @@ src/Bank.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/atm_system.dir/build.make CMakeFiles/atm_system.dir/src/Bank.cpp.s
 .PHONY : src/Bank.cpp.s
 
+src/Session.o: src/Session.cpp.o
+.PHONY : src/Session.o
+
+# target to build an object file
+src/Session.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/atm_system.dir/build.make CMakeFiles/atm_system.dir/src/Session.cpp.o
+.PHONY : src/Session.cpp.o
+
+src/Session.i: src/Session.cpp.i
+.PHONY : src/Session.i
+
+# target to preprocess a source file
+src/Session.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/atm_system.dir/build.make CMakeFiles/atm_system.dir/src/Session.cpp.i
+.PHONY : src/Session.cpp.i
+
+src/Session.s: src/Session.cpp.s
+.PHONY : src/Session.s
+
+# target to generate assembly for a file
+src/Session.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/atm_system.dir/build.make CMakeFiles/atm_system.dir/src/Session.cpp.s
+.PHONY : src/Session.cpp.s
+
 src/SystemInitializer.o: src/SystemInitializer.cpp.o
 .PHONY : src/SystemInitializer.o
 
@@ -224,6 +248,30 @@ src/SystemInitializer.s: src/SystemInitializer.cpp.s
 src/SystemInitializer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/atm_system.dir/build.make CMakeFiles/atm_system.dir/src/SystemInitializer.cpp.s
 .PHONY : src/SystemInitializer.cpp.s
+
+src/SystemSnapshot.o: src/SystemSnapshot.cpp.o
+.PHONY : src/SystemSnapshot.o
+
+# target to build an object file
+src/SystemSnapshot.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/atm_system.dir/build.make CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.o
+.PHONY : src/SystemSnapshot.cpp.o
+
+src/SystemSnapshot.i: src/SystemSnapshot.cpp.i
+.PHONY : src/SystemSnapshot.i
+
+# target to preprocess a source file
+src/SystemSnapshot.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/atm_system.dir/build.make CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.i
+.PHONY : src/SystemSnapshot.cpp.i
+
+src/SystemSnapshot.s: src/SystemSnapshot.cpp.s
+.PHONY : src/SystemSnapshot.s
+
+# target to generate assembly for a file
+src/SystemSnapshot.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/atm_system.dir/build.make CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.s
+.PHONY : src/SystemSnapshot.cpp.s
 
 src/Transaction.o: src/Transaction.cpp.o
 .PHONY : src/Transaction.o
@@ -315,9 +363,15 @@ help:
 	@echo "... src/Bank.o"
 	@echo "... src/Bank.i"
 	@echo "... src/Bank.s"
+	@echo "... src/Session.o"
+	@echo "... src/Session.i"
+	@echo "... src/Session.s"
 	@echo "... src/SystemInitializer.o"
 	@echo "... src/SystemInitializer.i"
 	@echo "... src/SystemInitializer.s"
+	@echo "... src/SystemSnapshot.o"
+	@echo "... src/SystemSnapshot.i"
+	@echo "... src/SystemSnapshot.s"
 	@echo "... src/Transaction.o"
 	@echo "... src/Transaction.i"
 	@echo "... src/Transaction.s"

@@ -1,11 +1,10 @@
-// src/Account.cpp
 #include "Account.hpp"
 
 namespace ATMSystem
 {
 
-    Account::Account(std::shared_ptr<Bank> b, const std::string &user, const std::string &accNum)
-        : bank(b), userName(user), accountNumber(accNum), balance(0)
+    Account::Account(std::shared_ptr<Bank> b, const std::string &user, const std::string &accNum, const std::string &pinCode)
+        : bank(b), userName(user), accountNumber(accNum), pin(pinCode), balance(0)
     {
     }
 
@@ -45,4 +44,4 @@ namespace ATMSystem
         return transactionHistory;
     }
 
-} // namespace ATMSystem
+}

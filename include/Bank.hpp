@@ -20,13 +20,24 @@ namespace ATMSystem
         explicit Bank(const std::string &bankName);
 
         // Account management
-        bool createAccount(const std::string &userName, const std::string &accountNumber);
+        bool createAccount(const std::string &userName, const std::string &accountNumber,
+                           const std::string &pin);
         std::shared_ptr<Account> getAccount(const std::string &accountNumber);
         std::vector<std::string> getUserAccounts(const std::string &userName);
 
         // Getters
         std::string getName() const { return name; }
+        bool verifyPIN(const std::string &accountNumber, const std::string &pin);
+        std::vector<std::shared_ptr<Account>> getAllAccounts() const
+        {
+            std::vector<std::shared_ptr<Account>> allAccounts;
+            for (const auto &[_, account] : accounts)
+            {
+                allAccounts.push_back(account);
+            }
+            return allAccounts;
+        }
     };
 }
 
-#endif // BANK_HPP
+#endif

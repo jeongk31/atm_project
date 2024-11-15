@@ -16,7 +16,9 @@ set(SOURCES
     src/ATM.cpp
     src/Bank.cpp
     src/Account.cpp
+    src/Session.cpp
     src/Transaction.cpp
+    src/SystemSnapshot.cpp
 )
 
 # Create executable

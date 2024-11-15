@@ -153,10 +153,24 @@ CMakeFiles/atm_system.dir/src/Account.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/atm_system.dir/src/Account.cpp.s"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/thet/Desktop/Work/Current/Loop Dimension/Projects/atm_project/src/Account.cpp" -o CMakeFiles/atm_system.dir/src/Account.cpp.s
 
+CMakeFiles/atm_system.dir/src/Session.cpp.o: CMakeFiles/atm_system.dir/flags.make
+CMakeFiles/atm_system.dir/src/Session.cpp.o: /Users/thet/Desktop/Work/Current/Loop\ Dimension/Projects/atm_project/src/Session.cpp
+CMakeFiles/atm_system.dir/src/Session.cpp.o: CMakeFiles/atm_system.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/thet/Desktop/Work/Current/Loop Dimension/Projects/atm_project/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/atm_system.dir/src/Session.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/atm_system.dir/src/Session.cpp.o -MF CMakeFiles/atm_system.dir/src/Session.cpp.o.d -o CMakeFiles/atm_system.dir/src/Session.cpp.o -c "/Users/thet/Desktop/Work/Current/Loop Dimension/Projects/atm_project/src/Session.cpp"
+
+CMakeFiles/atm_system.dir/src/Session.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/atm_system.dir/src/Session.cpp.i"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/thet/Desktop/Work/Current/Loop Dimension/Projects/atm_project/src/Session.cpp" > CMakeFiles/atm_system.dir/src/Session.cpp.i
+
+CMakeFiles/atm_system.dir/src/Session.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/atm_system.dir/src/Session.cpp.s"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/thet/Desktop/Work/Current/Loop Dimension/Projects/atm_project/src/Session.cpp" -o CMakeFiles/atm_system.dir/src/Session.cpp.s
+
 CMakeFiles/atm_system.dir/src/Transaction.cpp.o: CMakeFiles/atm_system.dir/flags.make
 CMakeFiles/atm_system.dir/src/Transaction.cpp.o: /Users/thet/Desktop/Work/Current/Loop\ Dimension/Projects/atm_project/src/Transaction.cpp
 CMakeFiles/atm_system.dir/src/Transaction.cpp.o: CMakeFiles/atm_system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/thet/Desktop/Work/Current/Loop Dimension/Projects/atm_project/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/atm_system.dir/src/Transaction.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/thet/Desktop/Work/Current/Loop Dimension/Projects/atm_project/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/atm_system.dir/src/Transaction.cpp.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/atm_system.dir/src/Transaction.cpp.o -MF CMakeFiles/atm_system.dir/src/Transaction.cpp.o.d -o CMakeFiles/atm_system.dir/src/Transaction.cpp.o -c "/Users/thet/Desktop/Work/Current/Loop Dimension/Projects/atm_project/src/Transaction.cpp"
 
 CMakeFiles/atm_system.dir/src/Transaction.cpp.i: cmake_force
@@ -167,6 +181,20 @@ CMakeFiles/atm_system.dir/src/Transaction.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/atm_system.dir/src/Transaction.cpp.s"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/thet/Desktop/Work/Current/Loop Dimension/Projects/atm_project/src/Transaction.cpp" -o CMakeFiles/atm_system.dir/src/Transaction.cpp.s
 
+CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.o: CMakeFiles/atm_system.dir/flags.make
+CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.o: /Users/thet/Desktop/Work/Current/Loop\ Dimension/Projects/atm_project/src/SystemSnapshot.cpp
+CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.o: CMakeFiles/atm_system.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/thet/Desktop/Work/Current/Loop Dimension/Projects/atm_project/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.o -MF CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.o.d -o CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.o -c "/Users/thet/Desktop/Work/Current/Loop Dimension/Projects/atm_project/src/SystemSnapshot.cpp"
+
+CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.i"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/thet/Desktop/Work/Current/Loop Dimension/Projects/atm_project/src/SystemSnapshot.cpp" > CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.i
+
+CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.s"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/thet/Desktop/Work/Current/Loop Dimension/Projects/atm_project/src/SystemSnapshot.cpp" -o CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.s
+
 # Object files for target atm_system
 atm_system_OBJECTS = \
 "CMakeFiles/atm_system.dir/src/main.cpp.o" \
@@ -175,7 +203,9 @@ atm_system_OBJECTS = \
 "CMakeFiles/atm_system.dir/src/ATM.cpp.o" \
 "CMakeFiles/atm_system.dir/src/Bank.cpp.o" \
 "CMakeFiles/atm_system.dir/src/Account.cpp.o" \
-"CMakeFiles/atm_system.dir/src/Transaction.cpp.o"
+"CMakeFiles/atm_system.dir/src/Session.cpp.o" \
+"CMakeFiles/atm_system.dir/src/Transaction.cpp.o" \
+"CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.o"
 
 # External object files for target atm_system
 atm_system_EXTERNAL_OBJECTS =
@@ -186,10 +216,12 @@ atm_system: CMakeFiles/atm_system.dir/src/SystemInitializer.cpp.o
 atm_system: CMakeFiles/atm_system.dir/src/ATM.cpp.o
 atm_system: CMakeFiles/atm_system.dir/src/Bank.cpp.o
 atm_system: CMakeFiles/atm_system.dir/src/Account.cpp.o
+atm_system: CMakeFiles/atm_system.dir/src/Session.cpp.o
 atm_system: CMakeFiles/atm_system.dir/src/Transaction.cpp.o
+atm_system: CMakeFiles/atm_system.dir/src/SystemSnapshot.cpp.o
 atm_system: CMakeFiles/atm_system.dir/build.make
 atm_system: CMakeFiles/atm_system.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/Users/thet/Desktop/Work/Current/Loop Dimension/Projects/atm_project/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable atm_system"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/Users/thet/Desktop/Work/Current/Loop Dimension/Projects/atm_project/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable atm_system"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/atm_system.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

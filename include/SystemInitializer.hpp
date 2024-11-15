@@ -1,4 +1,3 @@
-// include/SystemInitializer.hpp
 #ifndef SYSTEM_INITIALIZER_HPP
 #define SYSTEM_INITIALIZER_HPP
 
@@ -13,6 +12,7 @@ namespace ATMSystem
     class SystemInitializer
     {
     private:
+        UI &ui;
         std::vector<std::shared_ptr<ATM>> atms;
         std::vector<std::shared_ptr<Bank>> banks;
 
@@ -23,10 +23,9 @@ namespace ATMSystem
         void initializeBankAccounts(const std::shared_ptr<Bank> &bank);
 
     public:
-        SystemInitializer() = default;
-
-        // Main initialization method
         void initializeSystem();
+
+        explicit SystemInitializer(UI &ui) : ui(ui) {}
 
         // Getters
         const std::vector<std::shared_ptr<ATM>> &getATMs() const;

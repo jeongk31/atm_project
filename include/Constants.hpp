@@ -6,6 +6,7 @@
 
 namespace ATMSystem
 {
+    const std::string ADMIN_CARD = "999999999999";
     enum class BankType
     {
         SINGLE_BANK,

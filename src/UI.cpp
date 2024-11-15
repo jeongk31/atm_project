@@ -14,7 +14,7 @@ namespace ATMSystem
         {
             return isKorean ? it->second.second : it->second.first;
         }
-        return "Message not found / 메시지를 찾을 수 없습니다";
+        return getLocalizedMessage("MESSAGE_NOT_FOUND");
     }
 
     void UI::displayMessage(const std::string &messageKey) const
@@ -40,11 +40,27 @@ namespace ATMSystem
         return input;
     }
 
+    bool UI::processCardInsertion()
+    {
+        showDisplayPanel("INSERT_CARD");
+        std::string cardNumber = getInput();
+
+        if (cardNumber.length() != 12)
+        {
+            displayMessage("INVALID_CARD");
+            return false;
+        }
+        return true;
+    }
+
     void UI::showDisplayPanel(const std::string &messageKey) const
     {
-        std::cout << "\n----------------------------------------\n";
+        std::string border = getLocalizedMessage("SYSTEM_BORDER");
+        std::cout << "\n"
+                  << border << "\n";
         std::cout << getLocalizedMessage(messageKey);
-        std::cout << "\n----------------------------------------\n";
+        std::cout << "\n"
+                  << border << "\n";
     }
 
     std::string UI::getKeypadInput() const
@@ -52,15 +68,10 @@ namespace ATMSystem
         return getInput();
     }
 
-    bool UI::processCardInsertion()
-    {
-        showDisplayPanel("INSERT_CARD");
-        return true;
-    }
-
     std::map<int, int> UI::getCashInput() const
     {
         std::map<int, int> cashInput;
+        int totalBills = 0;
 
         displayMessage("ENTER_BILLS");
 
@@ -77,11 +88,17 @@ namespace ATMSystem
                 }
                 std::cout << message << " ";
 
-                if (!(std::cin >> count) || count < 0 || count > MAX_CASH_INSERT)
+                if (!(std::cin >> count) || count < 0)
                 {
-                    std::cout << "Please enter a valid number between 0 and " << MAX_CASH_INSERT << "\n";
+                    std::cout << getLocalizedMessage("INVALID_AMOUNT") << "\n";
                     std::cin.clear();
                     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    continue;
+                }
+
+                if (totalBills + count > MAX_CASH_INSERT)
+                {
+                    std::cout << getLocalizedMessage("MAX_DEPOSIT_EXCEEDED") << "\n";
                     continue;
                 }
                 break;
@@ -90,22 +107,11 @@ namespace ATMSystem
             if (count > 0)
             {
                 cashInput[denomination] = count;
+                totalBills += count;
             }
         }
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         return cashInput;
-    }
-
-    void UI::showCashDispenser(const std::map<int, int> &cash) const
-    {
-        displayMessage("BILLS_BREAKDOWN");
-        for (const auto &[denomination, count] : cash)
-        {
-            if (count > 0)
-            {
-                std::cout << count << " × KRW " << denomination << "\n";
-            }
-        }
     }
 
     void UI::showTransactionSummary(const std::vector<std::string> &summary) const
@@ -126,5 +132,22 @@ namespace ATMSystem
             std::cout << detail << "\n";
         }
         std::cout << getLocalizedMessage("THANK_YOU") << std::endl;
+    }
+
+    void UI::showCashDispenser(const std::map<int, int> &cash) const
+    {
+        displayMessage("BILLS_BREAKDOWN");
+        for (const auto &[denomination, count] : cash)
+        {
+            if (count > 0)
+            {
+                std::string format = getLocalizedMessage("BILL_FORMAT");
+                size_t pos = format.find("{}");
+                format.replace(pos, 2, std::to_string(count));
+                pos = format.find("{}");
+                format.replace(pos, 2, std::to_string(denomination));
+                std::cout << format << "\n";
+            }
+        }
     }
 }
